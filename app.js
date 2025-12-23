@@ -1,35 +1,61 @@
-const chatBox = document.getElementById("chatBox");
+const chatArea = document.getElementById("chatArea");
 const userInput = document.getElementById("userInput");
 
-let chatHistory = JSON.parse(localStorage.getItem("luxeChat")) || [];
+let history = JSON.parse(localStorage.getItem("luxe-history")) || [];
 
-chatHistory.forEach(msg => addMessage(msg.text, msg.type));
+history.forEach(m => addMessage(m.text, m.type));
+
+function handleEnter(e) {
+  if (e.key === "Enter") sendMessage();
+}
 
 function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
-  saveMessage(text, "user");
-
+  save(text, "user");
   userInput.value = "";
 
+  showTyping();
+
   setTimeout(() => {
-    const reply = "This is a luxury AI demo response ✨";
+    removeTyping();
+    const reply = "This is a premium AI demo response.";
     addMessage(reply, "bot");
-    saveMessage(reply, "bot");
-  }, 700);
+    save(reply, "bot");
+  }, 900);
 }
 
 function addMessage(text, type) {
   const div = document.createElement("div");
   div.className = `message ${type}`;
-  div.innerText = text;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  div.textContent = text;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-function saveMessage(text, type) {
-  chatHistory.push({ text, type });
-  localStorage.setItem("luxeChat", JSON.stringify(chatHistory));
+function save(text, type) {
+  history.push({ text, type });
+  localStorage.setItem("luxe-history", JSON.stringify(history));
 }
+
+function clearChat() {
+  localStorage.removeItem("luxe-history");
+  chatArea.innerHTML = "";
+}
+
+function showTyping() {
+  const div = document.createElement("div");
+  div.className = "message bot";
+  div.id = "typing";
+  div.textContent = "AI is thinking…";
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById("typing");
+  if (t) t.remove();
+}
+
